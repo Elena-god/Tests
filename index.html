@@ -66,20 +66,34 @@
         }
         .dialog-block p {
             margin: 12px 0;
+            line-height: 1.5;
         }
         .dialog-block input {
             width: auto;
-            min-width: 100px;
+            min-width: 90px;
             display: inline-block;
-            margin: 0 6px;
+            margin: 0 4px;
             padding: 8px;
         }
-        .inline-input {
-            width: auto;
-            min-width: 70px;
+        .ending-item {
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .ending-item strong {
             display: inline-block;
-            margin: 0 6px;
-            padding: 6px 10px;
+            width: 30px;
+        }
+        .inline-input {
+            width: 70px;
+            display: inline-block;
+            margin: 0 4px;
+            padding: 6px 8px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        .ending-text {
+            display: inline;
+            font-size: 1rem;
         }
         .correct { color: #34c759; font-weight: bold; }
         .wrong { color: #ff3b30; }
@@ -156,13 +170,28 @@
         }
         .animate-correct { animation: pulseGreen 0.3s ease !important; }
         .animate-wrong { animation: shake 0.3s ease !important; }
-        .send-status { font-size: 0.75rem; margin-top: 8px; padding: 6px; border-radius: 12px; }
-        .send-success { background: #d4edda; color: #155724; }
-        .send-error { background: #f8d7da; color: #721c24; }
         @media (max-width: 550px) {
             .dialog-block input { display: block; width: 100%; margin: 8px 0; }
-            .inline-input { display: block; width: 100%; margin: 8px 0; }
-            .options-group { justify-content: center; }
+            .inline-input { width: 60px; display: inline-block; margin: 0 3px; }
+            .ending-text { display: inline; }
+            .ending-item { margin-bottom: 15px; }
+        }
+        .audio-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .audio-row button {
+            width: auto;
+            margin: 0;
+            padding: 8px 16px;
+        }
+        .audio-row select {
+            width: auto;
+            flex: 1;
+            min-width: 150px;
         }
     </style>
 </head>
@@ -179,7 +208,7 @@
         <p id="task1_1Result"></p>
     </div>
 
-    <!-- ЗАДАНИЕ 1.2 (ИСПРАВЛЕНО) -->
+    <!-- ЗАДАНИЕ 1.2 -->
     <div class="task">
         <h2>📝 1.2 — Вставьте пропущенные окончания / Fill in the endings</h2>
         <div class="eng-label">Введите правильные окончания (например: ая, ую, ые, ете, е)</div>
@@ -188,7 +217,7 @@
         <p id="task1_2Result"></p>
     </div>
 
-    <!-- ЗАДАНИЕ 2 -->
+    <!-- ЗАДАНИЕ 2 (Аудирование) с вашими аудиофайлами -->
     <div class="task">
         <h2>🎧 2 — Аудирование / Listening</h2>
         <div class="eng-label">Прослушайте фразу и выберите правильный перевод</div>
@@ -197,7 +226,7 @@
         <p id="task2Result"></p>
     </div>
 
-    <!-- ЗАДАНИЕ 3 -->
+    <!-- ЗАДАНИЕ 3 (Говорение) с вашими аудиофайлами -->
     <div class="task">
         <h2>🗣 3 — Говорение / Speaking</h2>
         <div class="eng-label">Прослушайте, затем повторите в микрофон</div>
@@ -229,15 +258,31 @@
         <label>👤 Ваше имя / Your name:</label>
         <input type="text" id="studentName" placeholder="Например, Анна">
         <button onclick="calculateTotalScore()" style="background: #34c759;">🏆 ЗАВЕРШИТЬ ТЕСТ / FINISH</button>
-        <div id="sendStatus" class="send-status"></div>
     </div>
     <div id="finalResult" class="result-box"></div>
 
     <script>
-        // ==================== НАСТРОЙКИ TELEGRAM (ЗАМЕНИТЕ!) ====================
-        const TELEGRAM_BOT_TOKEN = "1234567890:ABCdefGHIjklMNOpqrsTUVwxyz";  // <<< ВАШ ТОКЕН
-        const TELEGRAM_CHAT_ID = "123456789";  // <<< ВАШ ID
-        // =======================================================================
+        // ==================== ВАШИ АУДИОФАЙЛЫ (АУДИРОВАНИЕ) ====================
+        const CUSTOM_AUDIO_URLS = {
+            "У вас есть шуба?": "https://drive.google.com/uc?export=download&id=13b3M8gb4lZOGlUL1CRalu_Kkj9AB__Wx",
+            "Вы хотите чёрную шубу?": "https://drive.google.com/uc?export=download&id=1_GJ1QSUJLFoQAVK3MmboBn98SYdILZ3I",
+            "Мы любим природу": "https://drive.google.com/uc?export=download&id=1rnYCOR3jtQiIeHHoK2TRGycCg9rpxssU",
+            "Странная логика!": "https://drive.google.com/uc?export=download&id=1nKuLNbRhmDPm7xIIPy6LJ09hbGeLFdbQ",
+            "Спасибо за покупку": "https://drive.google.com/uc?export=download&id=1U3_m3A4xYn2fHiOMDQhS56RRINFgsgIU",
+            "Какой размер?": "https://drive.google.com/uc?export=download&id=1U-TSZKvFYofYWSBHFMh5bsnf0wpE6-mX",
+            "Я покупаю всё натуральное": "https://drive.google.com/uc?export=download&id=1zViT5EagYJnTW7XHm1SLEpwdRyB22M83",
+            "У меня кредитная карта": "https://drive.google.com/uc?export=download&id=1NZyawmJbVE_ZNFlWOEeooAbK6VkYO9hs"
+        };
+        
+        // ==================== ВАШИ АУДИОФАЙЛЫ (ГОВОРЕНИЕ) ====================
+        const CUSTOM_SPEAKING_URLS = {
+            "Я покупаю всё натуральное": "https://drive.google.com/uc?export=download&id=1zViT5EagYJnTW7XHm1SLEpwdRyB22M83",
+            "Мы любим природу": "https://drive.google.com/uc?export=download&id=1rnYCOR3jtQiIeHHoK2TRGycCg9rpxssU",
+            "Странная логика!": "https://drive.google.com/uc?export=download&id=1nKuLNbRhmDPm7xIIPy6LJ09hbGeLFdbQ",
+            "Спасибо за покупку": "https://drive.google.com/uc?export=download&id=1U3_m3A4xYn2fHiOMDQhS56RRINFgsgIU",
+            "Пожалуйста, вот эту, голубую": "https://drive.google.com/uc?export=download&id=1QkTQVNBMpdO-23rCxGwLOZFs6Y_ddGgk",
+            "А другие цвета у вас есть?": "https://drive.google.com/uc?export=download&id=19nZ-SfTxNL71tAYJ-D3iJARBL-HsguAD"
+        };
 
         function normalizeString(str) {
             if (!str) return "";
@@ -324,47 +369,43 @@
             return score;
         }
 
-        // ========== ЗАДАНИЕ 1.2 (ИСПРАВЛЕНО: ЦЕЛЫЕ ФРАЗЫ, НУМЕРАЦИЯ) ==========
-        // Описание фраз с правильными ответами
+        // ========== ЗАДАНИЕ 1.2 ==========
         const endingFrames = [
             { num: 1, text: "У вас есть красив______ шуба?", correct: "ая" },
             { num: 2, text: "Я хочу купить нов______ шубу.", correct: "ую" },
             { num: 3, text: "Мы говорим о шуб______.", correct: "е" },
-            { num: 4, text: "Извините, вы ищ______ натуральн______ шубу?", correct: ["ете", "ую"] },
+            { num: 4, text: "Извините, вы ищ______ натураль______ шубу?", correct: ["ете", "ую"] },
             { num: 5, text: "Вот здесь у нас синтетика: жёлт______ шубы и голуб______.", correct: ["ые", "ые"] },
             { num: 6, text: "У меня кредитн______ карта.", correct: "ая" },
             { num: 7, text: "В Европ______ не носят натуральные шубы.", correct: "е" },
             { num: 8, text: "Мы любим природ______.", correct: "у" }
         ];
 
-        // Генерируем поля ввода
-        let endingFields = []; // хранит info о каждом поле
+        let endingFields = [];
         let endingHtml = '';
         let fieldCounter = 0;
         
         for (let frame of endingFrames) {
             if (Array.isArray(frame.correct)) {
-                // Фраза с двумя пропусками — заменяем оба
                 let textWithInputs = frame.text;
+                const fieldIds = [];
                 for (let i = 0; i < frame.correct.length; i++) {
                     const fieldId = `ending_${fieldCounter}`;
-                    textWithInputs = textWithInputs.replace('______', `<input type="text" id="${fieldId}" placeholder="окончание" class="inline-input" style="width:80px;">`);
+                    fieldIds.push(fieldId);
+                    textWithInputs = textWithInputs.replace('______', `<input type="text" id="${fieldId}" placeholder="__" class="inline-input" style="width:55px;">`);
                     endingFields.push({ correct: frame.correct[i], frameNum: frame.num, part: i+1 });
                     fieldCounter++;
                 }
-                endingHtml += `<p><strong>${frame.num}.</strong> ${textWithInputs}<br>`;
-                // Добавляем подсказки для каждого поля
+                endingHtml += `<div class="ending-item"><strong>${frame.num}.</strong> <span class="ending-text">${textWithInputs}</span><br>`;
                 for (let i = 0; i < frame.correct.length; i++) {
-                    const hintId = `hintEnding_${fieldCounter - frame.correct.length + i}`;
-                    endingHtml += `<span id="${hintId}" style="display:block; font-size:0.7rem;"></span>`;
+                    endingHtml += `<span id="hintEnding_${fieldCounter - frame.correct.length + i}" style="display:inline-block; font-size:0.65rem; margin-right:10px;"></span>`;
                 }
-                endingHtml += `</p>`;
+                endingHtml += `</div>`;
             } else {
-                // Один пропуск
                 const fieldId = `ending_${fieldCounter}`;
-                const textWithInput = frame.text.replace('______', `<input type="text" id="${fieldId}" placeholder="окончание" class="inline-input" style="width:80px;">`);
-                endingHtml += `<p><strong>${frame.num}.</strong> ${textWithInput}<br>`;
-                endingHtml += `<span id="hintEnding_${fieldCounter}" style="display:block; font-size:0.7rem;"></span></p>`;
+                const textWithInput = frame.text.replace('______', `<input type="text" id="${fieldId}" placeholder="__" class="inline-input" style="width:55px;">`);
+                endingHtml += `<div class="ending-item"><strong>${frame.num}.</strong> <span class="ending-text">${textWithInput}</span><br>`;
+                endingHtml += `<span id="hintEnding_${fieldCounter}" style="display:inline-block; font-size:0.65rem;"></span></div>`;
                 endingFields.push({ correct: frame.correct, frameNum: frame.num, part: 1 });
                 fieldCounter++;
             }
@@ -390,14 +431,14 @@
                     inputField.style.border = "2px solid #34c759";
                     inputField.style.backgroundColor = "#e8f5e9";
                     if (hintSpan) {
-                        hintSpan.innerHTML = "✅ Верно!";
+                        hintSpan.innerHTML = "✅";
                         hintSpan.style.color = "#34c759";
                     }
                 } else {
                     inputField.style.border = "2px solid #ff3b30";
                     inputField.style.backgroundColor = "#ffebee";
                     if (hintSpan) {
-                        hintSpan.innerHTML = `❌ Нужно окончание «${correct}»`;
+                        hintSpan.innerHTML = `❌ "${correct}"`;
                         hintSpan.style.color = "#ff3b30";
                     }
                 }
@@ -428,31 +469,45 @@
             return opts;
         }
         
+        function playCustomAudio(text) {
+            if (CUSTOM_AUDIO_URLS[text]) {
+                const audio = new Audio(CUSTOM_AUDIO_URLS[text]);
+                audio.play();
+                return true;
+            }
+            return false;
+        }
+        
+        function playAudioPhrase(index) {
+            const text = audioFrames[index].text;
+            if (playCustomAudio(text)) return;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = "ru-RU";
+            speechSynthesis.cancel();
+            speechSynthesis.speak(utterance);
+        }
+        
         function renderAudio() {
             let html = '';
             for (let i = 0; i < audioFrames.length; i++) {
                 const shuffled = shuffleOptions(audioFrames[i]);
                 html += `<div class="phrase-card" id="audioCard_${i}">
-                            <strong>Фраза ${i+1}:</strong> 
-                            <button type="button" onclick="playAudioPhrase(${i})" style="width:auto; display:inline-block; padding:8px 16px;">🔊 Прослушать</button>
-                            <select id="audioSelect_${i}" style="width:auto; margin-left:10px;">
-                                <option value="">-- Выберите перевод --</option>`;
+                            <div class="audio-row">
+                                <strong>${i+1}.</strong>
+                                <button type="button" onclick="playAudioPhrase(${i})">🔊 Прослушать</button>
+                                <select id="audioSelect_${i}">
+                                    <option value="">-- Выберите перевод --</option>`;
                 for (let opt of shuffled) {
                     html += `<option value="${opt.replace(/"/g, '&quot;')}">${opt}</option>`;
                 }
-                html += `</select><span id="audioResult_${i}" style="font-size:0.75rem; margin-left:10px;"></span>
+                html += `</select>
+                            </div>
+                            <span id="audioResult_${i}" style="font-size:0.75rem;"></span>
                          </div>`;
             }
             document.getElementById('audioQuestions').innerHTML = html;
         }
         renderAudio();
-        
-        function playAudioPhrase(index) {
-            const utterance = new SpeechSynthesisUtterance(audioFrames[index].text);
-            utterance.lang = "ru-RU";
-            speechSynthesis.cancel();
-            speechSynthesis.speak(utterance);
-        }
         
         function checkAllAudio() {
             let score = 0;
@@ -480,7 +535,7 @@
             return score;
         }
 
-        // ========== ЗАДАНИЕ 3 ==========
+        // ========== ЗАДАНИЕ 3 (Говорение) ==========
         const speakingPhrases = [
             "Я покупаю всё натуральное",
             "Мы любим природу",
@@ -490,14 +545,25 @@
             "А другие цвета у вас есть?"
         ];
         
+        function playCustomSpeaking(text) {
+            if (CUSTOM_SPEAKING_URLS[text]) {
+                const audio = new Audio(CUSTOM_SPEAKING_URLS[text]);
+                audio.play();
+                return true;
+            }
+            return false;
+        }
+        
         function renderSpeaking() {
             let html = '';
             for (let i = 0; i < speakingPhrases.length; i++) {
                 html += `<div class="phrase-card" id="speakCard_${i}">
                             <strong>Фраза ${i+1}:</strong> «${speakingPhrases[i]}»<br>
-                            <button type="button" onclick="speakPhrase(${i})" style="width:auto; display:inline-block; padding:8px 16px; background:#5856d6;">🔊 Прослушать</button>
-                            <button type="button" onclick="startSpeakingRecording(${i})" style="width:auto; display:inline-block; padding:8px 16px;">🎙 Повторить</button>
-                            <span id="speakRecognized_${i}" style="font-size:0.8rem; margin-left:10px;"></span>
+                            <div class="audio-row" style="margin-top:8px;">
+                                <button type="button" onclick="speakPhrase(${i})" style="background:#5856d6;">🔊 Прослушать</button>
+                                <button type="button" onclick="startSpeakingRecording(${i})">🎙 Повторить</button>
+                            </div>
+                            <span id="speakRecognized_${i}" style="font-size:0.8rem; display:block;"></span>
                             <span id="speakResult_${i}" style="display:block; font-size:0.75rem;"></span>
                          </div>`;
             }
@@ -505,15 +571,17 @@
         }
         renderSpeaking();
         
-        window.speakingScores = new Array(speakingPhrases.length).fill(null);
-        window.speakingTexts = new Array(speakingPhrases.length).fill("");
-        
         function speakPhrase(index) {
-            const utterance = new SpeechSynthesisUtterance(speakingPhrases[index]);
+            const text = speakingPhrases[index];
+            if (playCustomSpeaking(text)) return;
+            const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = "ru-RU";
             speechSynthesis.cancel();
             speechSynthesis.speak(utterance);
         }
+        
+        window.speakingScores = new Array(speakingPhrases.length).fill(null);
+        window.speakingTexts = new Array(speakingPhrases.length).fill("");
         
         function startSpeakingRecording(index) {
             if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
@@ -543,18 +611,24 @@
             }
             const targetNorm = normalizeString(speakingPhrases[index]);
             const spokenNorm = normalizeString(spoken);
+            
             const targetWords = targetNorm.split(/\s+/);
-            let matchCount = 0;
+            let allKeyWordsPresent = true;
             for (let w of targetWords) {
-                if (spokenNorm.includes(w)) matchCount++;
+                if (w.length > 2 && !spokenNorm.includes(w)) {
+                    allKeyWordsPresent = false;
+                    break;
+                }
             }
-            const isOk = (matchCount >= targetWords.length * 0.6);
+            const isSpasiboCorrect = (targetNorm === "спасибо за покупку") ? spokenNorm.includes("покупку") : true;
+            const isOk = (targetNorm === spokenNorm) || (allKeyWordsPresent && targetWords.length > 0 && isSpasiboCorrect);
+            
             animateElement(card, isOk);
             if (isOk) {
                 document.getElementById(`speakResult_${index}`).innerHTML = "✅ Хорошо! +1 балл";
                 window.speakingScores[index] = 1;
             } else {
-                document.getElementById(`speakResult_${index}`).innerHTML = `❌ Попробуйте ещё раз: «${speakingPhrases[index]}»`;
+                document.getElementById(`speakResult_${index}`).innerHTML = `❌ Нужно точно: «${speakingPhrases[index]}»`;
                 window.speakingScores[index] = 0;
             }
             return window.speakingScores[index];
@@ -590,8 +664,7 @@
                 html += `<div class="phrase-card" id="ddCard_${i}">
                             <strong>${i+1}.</strong> 
                             ${q.text.replace('______', `<span class="fill-blank" id="ddBlank_${i}">________</span>`)}
-                            <div class="options-group" id="ddOptions_${i}">
-                `;
+                            <div class="options-group" id="ddOptions_${i}">`;
                 for (let opt of q.options) {
                     html += `<span class="option-word" data-question="${i}" data-word="${opt.replace(/'/g, "\\'")}">${opt}</span>`;
                 }
@@ -719,28 +792,8 @@
         
         renderTopic();
 
-        // ========== TELEGRAM ==========
-        async function sendToTelegram(studentName, totalScore, maxScore, details) {
-            if (!TELEGRAM_BOT_TOKEN || TELEGRAM_BOT_TOKEN === "1234567890:ABCdefGHIjklMNOpqrsTUVwxyz") {
-                return false;
-            }
-            const message = `📊 *НОВЫЙ РЕЗУЛЬТАТ ТЕСТА*\n\n👤 *Студент:* ${studentName}\n📝 *Балл:* ${totalScore} из ${maxScore}\n📋 *Детали:* ${details}\n🕐 *Время:* ${new Date().toLocaleString()}`;
-            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-            try {
-                const response = await fetch(url, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: "Markdown" })
-                });
-                const result = await response.json();
-                return result.ok;
-            } catch (error) {
-                return false;
-            }
-        }
-
         // ========== ИТОГ ==========
-        async function calculateTotalScore() {
+        function calculateTotalScore() {
             const s1_1 = (window.score1_1 !== undefined) ? window.score1_1 : checkTask1_1();
             const s1_2 = (window.score1_2 !== undefined) ? window.score1_2 : checkTask1_2();
             const sAudio = (window.scoreAudio !== undefined) ? window.scoreAudio : checkAllAudio();
@@ -759,20 +812,6 @@
             else grade = "Попробуйте ещё раз";
             
             const details = `1.1:${s1_1}/6, 1.2:${s1_2}/10, 2:${sAudio}/8, 3:${sSpeaking}/6, 4:${sDrag}/9, 5:${sTopic}/1`;
-            
-            const sendStatusDiv = document.getElementById('sendStatus');
-            sendStatusDiv.innerHTML = "📤 Отправка результата в Telegram...";
-            sendStatusDiv.className = "send-status";
-            
-            const sent = await sendToTelegram(studentName, total, max, details);
-            
-            if (sent) {
-                sendStatusDiv.innerHTML = "✅ Результат отправлен учителю в Telegram!";
-                sendStatusDiv.className = "send-status send-success";
-            } else {
-                sendStatusDiv.innerHTML = "⚠️ Не удалось отправить результат. Проверьте токен и ID Telegram";
-                sendStatusDiv.className = "send-status send-error";
-            }
             
             document.getElementById('finalResult').innerHTML = `
                 🎓 ${studentName}, ваш результат: <strong>${total} из ${max} баллов</strong><br>
