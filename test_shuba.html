@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Тест: Диалог «Шуба»</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 16px;
+            background: #f0f2f5;
+        }
+        h1 { font-size: 1.8rem; margin-bottom: 4px; }
+        .subtitle { color: #666; margin-bottom: 20px; font-size: 0.9rem; }
+        .task {
+            background: white;
+            border-radius: 24px;
+            padding: 20px 16px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .task h2 {
+            font-size: 1.3rem;
+            margin-top: 0;
+            margin-bottom: 8px;
+            border-left: 4px solid #007aff;
+            padding-left: 12px;
+        }
+        .eng-label {
+            font-size: 0.75rem;
+            font-style: italic;
+            color: #888;
+            margin-bottom: 12px;
+        }
+        button {
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            font-size: 1rem;
+            border-radius: 40px;
+            width: 100%;
+            margin: 12px 0 8px 0;
+            cursor: pointer;
+            font-weight: 500;
+            touch-action: manipulation;
+        }
+        button:active { transform: scale(0.97); }
+        .secondary-btn { background: #5856d6; }
+        input, select {
+            padding: 14px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 14px;
+            margin: 8px 0;
+            font-family: inherit;
+        }
+        .dialog-block {
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 16px;
+            font-size: 0.95rem;
+        }
+        .dialog-block p {
+            margin: 12px 0;
+        }
+        .dialog-block input {
+            width: auto;
+            min-width: 100px;
+            display: inline-block;
+            margin: 0 6px;
+            padding: 8px;
+        }
+        .inline-input {
+            width: auto;
+            min-width: 70px;
+            display: inline-block;
+            margin: 0 6px;
+            padding: 6px 10px;
+        }
+        .correct { color: #34c759; font-weight: bold; }
+        .wrong { color: #ff3b30; }
+        .result-box {
+            background: white;
+            padding: 16px;
+            border-radius: 20px;
+            text-align: center;
+            font-size: 1.2rem;
+            margin-top: 16px;
+        }
+        .phrase-card {
+            background: #f0f8ff;
+            padding: 12px;
+            border-radius: 16px;
+            margin: 12px 0;
+        }
+        .options-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .option-word {
+            background: #e9ecef;
+            padding: 10px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            font-size: 1rem;
+            touch-action: manipulation;
+        }
+        .option-word:active { transform: scale(0.95); background: #007aff; color: white; }
+        .selected-option { background: #007aff; color: white; }
+        .fill-blank {
+            display: inline-block;
+            min-width: 90px;
+            background: #fff3e0;
+            border-bottom: 2px dashed #ff9500;
+            margin: 0 4px;
+            padding: 0 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .answer-option {
+            display: block;
+            margin: 8px 0;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .selected-correct {
+            background: #d4edda !important;
+            border: 1px solid #34c759;
+            animation: pulseGreen 0.3s ease;
+        }
+        .selected-wrong-only {
+            background: #f8d7da !important;
+            border: 1px solid #ff3b30;
+            animation: shake 0.3s ease;
+        }
+        @keyframes pulseGreen {
+            0% { transform: scale(1); background: #d4edda; }
+            50% { transform: scale(1.02); background: #a3e4b0; }
+            100% { transform: scale(1); background: #d4edda; }
+        }
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+            100% { transform: translateX(0); }
+        }
+        .animate-correct { animation: pulseGreen 0.3s ease !important; }
+        .animate-wrong { animation: shake 0.3s ease !important; }
+        .send-status { font-size: 0.75rem; margin-top: 8px; padding: 6px; border-radius: 12px; }
+        .send-success { background: #d4edda; color: #155724; }
+        .send-error { background: #f8d7da; color: #721c24; }
+        @media (max-width: 550px) {
+            .dialog-block input { display: block; width: 100%; margin: 8px 0; }
+            .inline-input { display: block; width: 100%; margin: 8px 0; }
+            .options-group { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <h1>🎓 Тест «Шуба» / Fur Coat Test</h1>
+    <div class="subtitle">Выполните все задания — баллы начисляются автоматически</div>
+
+    <!-- ЗАДАНИЕ 1.1 -->
+    <div class="task">
+        <h2>📝 1.1 — Вставьте слова / Fill in the blanks</h2>
+        <div class="eng-label">Введите пропущенные слова (регистр и знаки препинания не важны)</div>
+        <div class="dialog-block" id="dialogBlock"></div>
+        <button onclick="checkTask1_1()">✅ Проверить / Check</button>
+        <p id="task1_1Result"></p>
+    </div>
+
+    <!-- ЗАДАНИЕ 1.2 (ИСПРАВЛЕНО) -->
+    <div class="task">
+        <h2>📝 1.2 — Вставьте пропущенные окончания / Fill in the endings</h2>
+        <div class="eng-label">Введите правильные окончания (например: ая, ую, ые, ете, е)</div>
+        <div class="dialog-block" id="endingsBlock"></div>
+        <button onclick="checkTask1_2()">✅ Проверить / Check</button>
+        <p id="task1_2Result"></p>
+    </div>
+
+    <!-- ЗАДАНИЕ 2 -->
+    <div class="task">
+        <h2>🎧 2 — Аудирование / Listening</h2>
+        <div class="eng-label">Прослушайте фразу и выберите правильный перевод</div>
+        <div id="audioQuestions"></div>
+        <button onclick="checkAllAudio()">🎯 Проверить всё / Check all</button>
+        <p id="task2Result"></p>
+    </div>
+
+    <!-- ЗАДАНИЕ 3 -->
+    <div class="task">
+        <h2>🗣 3 — Говорение / Speaking</h2>
+        <div class="eng-label">Прослушайте, затем повторите в микрофон</div>
+        <div id="speakingItems"></div>
+        <button onclick="submitAllSpeaking()" class="secondary-btn">⭐ Завершить говорение / Finish speaking</button>
+        <p id="task3Result"></p>
+    </div>
+
+    <!-- ЗАДАНИЕ 4 -->
+    <div class="task">
+        <h2>📌 4 — Выберите правильное слово / Choose the correct word</h2>
+        <div class="eng-label">Нажмите на слово — оно вставится в пропуск</div>
+        <div id="dragDropQuestions"></div>
+        <button onclick="checkAllDragDrop()">✅ Проверить / Check</button>
+        <p id="task4Result"></p>
+    </div>
+
+    <!-- ЗАДАНИЕ 5 -->
+    <div class="task">
+        <h2>💬 5 — О чём этот диалог?</h2>
+        <div class="eng-label">Выберите правильный ответ</div>
+        <div id="topicQuestion"></div>
+        <button onclick="checkTopic()">🔍 Проверить / Check</button>
+        <p id="topicResult"></p>
+    </div>
+
+    <!-- Имя и итог -->
+    <div style="margin: 20px 0;">
+        <label>👤 Ваше имя / Your name:</label>
+        <input type="text" id="studentName" placeholder="Например, Анна">
+        <button onclick="calculateTotalScore()" style="background: #34c759;">🏆 ЗАВЕРШИТЬ ТЕСТ / FINISH</button>
+        <div id="sendStatus" class="send-status"></div>
+    </div>
+    <div id="finalResult" class="result-box"></div>
+
+    <script>
+        // ==================== НАСТРОЙКИ TELEGRAM (ЗАМЕНИТЕ!) ====================
+        const TELEGRAM_BOT_TOKEN = "1234567890:ABCdefGHIjklMNOpqrsTUVwxyz";  // <<< ВАШ ТОКЕН
+        const TELEGRAM_CHAT_ID = "123456789";  // <<< ВАШ ID
+        // =======================================================================
+
+        function normalizeString(str) {
+            if (!str) return "";
+            return str.trim().toLowerCase().replace(/ё/g, 'е').replace(/[.,!?;:()"']/g, '').replace(/\s+/g, ' ');
+        }
+
+        function animateElement(element, isCorrect) {
+            if (!element) return;
+            element.classList.remove('animate-correct', 'animate-wrong');
+            void element.offsetWidth;
+            element.classList.add(isCorrect ? 'animate-correct' : 'animate-wrong');
+            setTimeout(() => {
+                element.classList.remove('animate-correct', 'animate-wrong');
+            }, 300);
+        }
+
+        // ========== ЗАДАНИЕ 1.1 ==========
+        const dialogLines = [
+            "- Добрый день! У вас есть ______?",
+            "- Да, конечно! У нас самые красивые шубы! Вы хотите чёрную, ______ или коричневую?",
+            "- А другие цвета у вас есть? Жёлтая, красная или ______?",
+            "- Странные цвета! Извините, вы ищете натуральную шубу?",
+            "- Нет, конечно! В Европе не носят натуральные шубы, потому что мы любим природу.",
+            "- Странная логика! Я тоже люблю природу. И я покупаю всё натуральное. Вот, здесь у нас синтетика: жёлтые шубы, ______, красные и голубые.",
+            "- Пожалуйста, вот эту, ______. Хорошая шуба — и недорогая.",
+            "- Какой размер?",
+            "- ______. У меня кредитная карта.",
+            "- Хорошо, спасибо за покупку!"
+        ];
+        
+        const correctAnswers1_1 = ["шубы", "белую", "голубая", "зелёные", "голубую", "размер 46"];
+        const sizeVariants = ["46", "46-ой", "46й", "сорок шесть", "сорок шестой", "46 й"];
+        
+        function isSizeCorrect(userValue) {
+            const norm = normalizeString(userValue);
+            return sizeVariants.some(v => normalizeString(v) === norm);
+        }
+        
+        function renderDialog() {
+            let html = '';
+            let answerIdx = 0;
+            for (let line of dialogLines) {
+                if (line.includes('______')) {
+                    html += `<p>${line.replace('______', `<input type="text" id="fill_${answerIdx}" placeholder="введите слово">`)}`;
+                    html += `<span id="hint_${answerIdx}" style="display:block; font-size:0.7rem; margin-top:4px;"></span></p>`;
+                    answerIdx++;
+                } else {
+                    html += `<p>${line}</p>`;
+                }
+            }
+            document.getElementById('dialogBlock').innerHTML = html;
+        }
+        renderDialog();
+
+        function checkTask1_1() {
+            let score = 0;
+            for (let i = 0; i < correctAnswers1_1.length; i++) {
+                const inputField = document.getElementById(`fill_${i}`);
+                const userValue = inputField.value;
+                const hintSpan = document.getElementById(`hint_${i}`);
+                let isCorrect = false;
+                if (i === correctAnswers1_1.length - 1) {
+                    isCorrect = isSizeCorrect(userValue);
+                } else {
+                    isCorrect = (normalizeString(userValue) === normalizeString(correctAnswers1_1[i]));
+                }
+                animateElement(inputField, isCorrect);
+                if (isCorrect) {
+                    score++;
+                    inputField.style.border = "2px solid #34c759";
+                    inputField.style.backgroundColor = "#e8f5e9";
+                    hintSpan.innerHTML = "✅ Верно!";
+                    hintSpan.style.color = "#34c759";
+                } else {
+                    inputField.style.border = "2px solid #ff3b30";
+                    inputField.style.backgroundColor = "#ffebee";
+                    let correctDisplay = (i === correctAnswers1_1.length-1) ? "46, 46-ой, сорок шесть и т.д." : correctAnswers1_1[i];
+                    hintSpan.innerHTML = `❌ Правильный ответ: «${correctDisplay}»`;
+                    hintSpan.style.color = "#ff3b30";
+                }
+            }
+            document.getElementById('task1_1Result').innerHTML = `<span class="correct">✔ Задание 1.1: ${score} из ${correctAnswers1_1.length} баллов</span>`;
+            window.score1_1 = score;
+            return score;
+        }
+
+        // ========== ЗАДАНИЕ 1.2 (ИСПРАВЛЕНО: ЦЕЛЫЕ ФРАЗЫ, НУМЕРАЦИЯ) ==========
+        // Описание фраз с правильными ответами
+        const endingFrames = [
+            { num: 1, text: "У вас есть красив______ шуба?", correct: "ая" },
+            { num: 2, text: "Я хочу купить нов______ шубу.", correct: "ую" },
+            { num: 3, text: "Мы говорим о шуб______.", correct: "е" },
+            { num: 4, text: "Извините, вы ищ______ натуральн______ шубу?", correct: ["ете", "ую"] },
+            { num: 5, text: "Вот здесь у нас синтетика: жёлт______ шубы и голуб______.", correct: ["ые", "ые"] },
+            { num: 6, text: "У меня кредитн______ карта.", correct: "ая" },
+            { num: 7, text: "В Европ______ не носят натуральные шубы.", correct: "е" },
+            { num: 8, text: "Мы любим природ______.", correct: "у" }
+        ];
+
+        // Генерируем поля ввода
+        let endingFields = []; // хранит info о каждом поле
+        let endingHtml = '';
+        let fieldCounter = 0;
+        
+        for (let frame of endingFrames) {
+            if (Array.isArray(frame.correct)) {
+                // Фраза с двумя пропусками — заменяем оба
+                let textWithInputs = frame.text;
+                for (let i = 0; i < frame.correct.length; i++) {
+                    const fieldId = `ending_${fieldCounter}`;
+                    textWithInputs = textWithInputs.replace('______', `<input type="text" id="${fieldId}" placeholder="окончание" class="inline-input" style="width:80px;">`);
+                    endingFields.push({ correct: frame.correct[i], frameNum: frame.num, part: i+1 });
+                    fieldCounter++;
+                }
+                endingHtml += `<p><strong>${frame.num}.</strong> ${textWithInputs}<br>`;
+                // Добавляем подсказки для каждого поля
+                for (let i = 0; i < frame.correct.length; i++) {
+                    const hintId = `hintEnding_${fieldCounter - frame.correct.length + i}`;
+                    endingHtml += `<span id="${hintId}" style="display:block; font-size:0.7rem;"></span>`;
+                }
+                endingHtml += `</p>`;
+            } else {
+                // Один пропуск
+                const fieldId = `ending_${fieldCounter}`;
+                const textWithInput = frame.text.replace('______', `<input type="text" id="${fieldId}" placeholder="окончание" class="inline-input" style="width:80px;">`);
+                endingHtml += `<p><strong>${frame.num}.</strong> ${textWithInput}<br>`;
+                endingHtml += `<span id="hintEnding_${fieldCounter}" style="display:block; font-size:0.7rem;"></span></p>`;
+                endingFields.push({ correct: frame.correct, frameNum: frame.num, part: 1 });
+                fieldCounter++;
+            }
+        }
+        
+        function renderEndings() {
+            document.getElementById('endingsBlock').innerHTML = endingHtml;
+        }
+        renderEndings();
+        
+        function checkTask1_2() {
+            let score = 0;
+            for (let i = 0; i < endingFields.length; i++) {
+                const inputField = document.getElementById(`ending_${i}`);
+                if (!inputField) continue;
+                const userVal = normalizeString(inputField.value);
+                const correct = endingFields[i].correct;
+                const isCorrect = (userVal === correct);
+                animateElement(inputField, isCorrect);
+                const hintSpan = document.getElementById(`hintEnding_${i}`);
+                if (isCorrect) {
+                    score++;
+                    inputField.style.border = "2px solid #34c759";
+                    inputField.style.backgroundColor = "#e8f5e9";
+                    if (hintSpan) {
+                        hintSpan.innerHTML = "✅ Верно!";
+                        hintSpan.style.color = "#34c759";
+                    }
+                } else {
+                    inputField.style.border = "2px solid #ff3b30";
+                    inputField.style.backgroundColor = "#ffebee";
+                    if (hintSpan) {
+                        hintSpan.innerHTML = `❌ Нужно окончание «${correct}»`;
+                        hintSpan.style.color = "#ff3b30";
+                    }
+                }
+            }
+            document.getElementById('task1_2Result').innerHTML = `<span class="correct">✔ Задание 1.2: ${score} из ${endingFields.length} баллов</span>`;
+            window.score1_2 = score;
+            return score;
+        }
+
+        // ========== ЗАДАНИЕ 2 (Аудирование) ==========
+        const audioFrames = [
+            { text: "У вас есть шуба?", options: ["У вас есть шуба?", "У нас есть шубы?", "У них есть шубы?", "Вы хотите шубу?"], correct: "У вас есть шуба?" },
+            { text: "Вы хотите чёрную шубу?", options: ["Вы хотите серую шубу?", "Вот чёрная шуба.", "Вы хотите есть?", "Вы хотите чёрную шубу?"], correct: "Вы хотите чёрную шубу?" },
+            { text: "Мы любим природу", options: ["Мы не любим природу", "Мы хотим на природу", "Мы любим воду", "Мы любим природу"], correct: "Мы любим природу" },
+            { text: "Странная логика!", options: ["Странная женщина!", "Нет никакой логики!", "Старая логика!", "Странная логика!"], correct: "Странная логика!" },
+            { text: "Спасибо за покупку", options: ["Спасибо за всё", "Спасибо большое", "Спасибо за шубу", "Спасибо за покупку"], correct: "Спасибо за покупку" },
+            { text: "Какой размер?", options: ["Какой у вас размер?", "Какая шуба?", "Какой телефон?", "Какой размер?"], correct: "Какой размер?" },
+            { text: "Я покупаю всё натуральное", options: ["Я не покупаю натуральное", "Я покупаю всё ненатуральное", "Я не покупаю ничего", "Я покупаю всё натуральное"], correct: "Я покупаю всё натуральное" },
+            { text: "У меня кредитная карта", options: ["У меня есть кредитная карта", "У меня кредит", "У вас есть кредитная карта?", "У меня кредитная карта"], correct: "У меня кредитная карта" }
+        ];
+        
+        function shuffleOptions(frame) {
+            let opts = [...frame.options];
+            for (let i = opts.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [opts[i], opts[j]] = [opts[j], opts[i]];
+            }
+            return opts;
+        }
+        
+        function renderAudio() {
+            let html = '';
+            for (let i = 0; i < audioFrames.length; i++) {
+                const shuffled = shuffleOptions(audioFrames[i]);
+                html += `<div class="phrase-card" id="audioCard_${i}">
+                            <strong>Фраза ${i+1}:</strong> 
+                            <button type="button" onclick="playAudioPhrase(${i})" style="width:auto; display:inline-block; padding:8px 16px;">🔊 Прослушать</button>
+                            <select id="audioSelect_${i}" style="width:auto; margin-left:10px;">
+                                <option value="">-- Выберите перевод --</option>`;
+                for (let opt of shuffled) {
+                    html += `<option value="${opt.replace(/"/g, '&quot;')}">${opt}</option>`;
+                }
+                html += `</select><span id="audioResult_${i}" style="font-size:0.75rem; margin-left:10px;"></span>
+                         </div>`;
+            }
+            document.getElementById('audioQuestions').innerHTML = html;
+        }
+        renderAudio();
+        
+        function playAudioPhrase(index) {
+            const utterance = new SpeechSynthesisUtterance(audioFrames[index].text);
+            utterance.lang = "ru-RU";
+            speechSynthesis.cancel();
+            speechSynthesis.speak(utterance);
+        }
+        
+        function checkAllAudio() {
+            let score = 0;
+            for (let i = 0; i < audioFrames.length; i++) {
+                const selectEl = document.getElementById(`audioSelect_${i}`);
+                const selected = selectEl.value;
+                const resultSpan = document.getElementById(`audioResult_${i}`);
+                const card = document.getElementById(`audioCard_${i}`);
+                const isCorrect = (selected === audioFrames[i].correct);
+                animateElement(card, isCorrect);
+                if (isCorrect) {
+                    score++;
+                    resultSpan.innerHTML = "✅ Верно";
+                    resultSpan.style.color = "#34c759";
+                } else if (selected !== "") {
+                    resultSpan.innerHTML = "❌ Неверно";
+                    resultSpan.style.color = "#ff3b30";
+                } else {
+                    resultSpan.innerHTML = "⚠️ Выберите ответ";
+                    resultSpan.style.color = "#ff9500";
+                }
+            }
+            document.getElementById('task2Result').innerHTML = `<span class="correct">✔ Аудирование: ${score} из ${audioFrames.length} баллов</span>`;
+            window.scoreAudio = score;
+            return score;
+        }
+
+        // ========== ЗАДАНИЕ 3 ==========
+        const speakingPhrases = [
+            "Я покупаю всё натуральное",
+            "Мы любим природу",
+            "Странная логика!",
+            "Спасибо за покупку",
+            "Пожалуйста, вот эту, голубую",
+            "А другие цвета у вас есть?"
+        ];
+        
+        function renderSpeaking() {
+            let html = '';
+            for (let i = 0; i < speakingPhrases.length; i++) {
+                html += `<div class="phrase-card" id="speakCard_${i}">
+                            <strong>Фраза ${i+1}:</strong> «${speakingPhrases[i]}»<br>
+                            <button type="button" onclick="speakPhrase(${i})" style="width:auto; display:inline-block; padding:8px 16px; background:#5856d6;">🔊 Прослушать</button>
+                            <button type="button" onclick="startSpeakingRecording(${i})" style="width:auto; display:inline-block; padding:8px 16px;">🎙 Повторить</button>
+                            <span id="speakRecognized_${i}" style="font-size:0.8rem; margin-left:10px;"></span>
+                            <span id="speakResult_${i}" style="display:block; font-size:0.75rem;"></span>
+                         </div>`;
+            }
+            document.getElementById('speakingItems').innerHTML = html;
+        }
+        renderSpeaking();
+        
+        window.speakingScores = new Array(speakingPhrases.length).fill(null);
+        window.speakingTexts = new Array(speakingPhrases.length).fill("");
+        
+        function speakPhrase(index) {
+            const utterance = new SpeechSynthesisUtterance(speakingPhrases[index]);
+            utterance.lang = "ru-RU";
+            speechSynthesis.cancel();
+            speechSynthesis.speak(utterance);
+        }
+        
+        function startSpeakingRecording(index) {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert("Ваш браузер не поддерживает голосовой ввод.");
+                return;
+            }
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.lang = "ru-RU";
+            recognition.interimResults = false;
+            recognition.start();
+            recognition.onresult = (event) => {
+                const spoken = event.results[0][0].transcript;
+                window.speakingTexts[index] = spoken;
+                document.getElementById(`speakRecognized_${index}`).innerHTML = `🎤 Распознано: "${spoken}"`;
+            };
+            recognition.onerror = () => { alert("Ошибка микрофона."); };
+        }
+        
+        function checkSpeakingItem(index) {
+            const spoken = window.speakingTexts[index];
+            const card = document.getElementById(`speakCard_${index}`);
+            if (!spoken) {
+                document.getElementById(`speakResult_${index}`).innerHTML = "❌ Сначала нажмите «Повторить»";
+                window.speakingScores[index] = 0;
+                return 0;
+            }
+            const targetNorm = normalizeString(speakingPhrases[index]);
+            const spokenNorm = normalizeString(spoken);
+            const targetWords = targetNorm.split(/\s+/);
+            let matchCount = 0;
+            for (let w of targetWords) {
+                if (spokenNorm.includes(w)) matchCount++;
+            }
+            const isOk = (matchCount >= targetWords.length * 0.6);
+            animateElement(card, isOk);
+            if (isOk) {
+                document.getElementById(`speakResult_${index}`).innerHTML = "✅ Хорошо! +1 балл";
+                window.speakingScores[index] = 1;
+            } else {
+                document.getElementById(`speakResult_${index}`).innerHTML = `❌ Попробуйте ещё раз: «${speakingPhrases[index]}»`;
+                window.speakingScores[index] = 0;
+            }
+            return window.speakingScores[index];
+        }
+        
+        function submitAllSpeaking() {
+            let total = 0;
+            for (let i = 0; i < speakingPhrases.length; i++) {
+                total += checkSpeakingItem(i);
+            }
+            document.getElementById('task3Result').innerHTML = `<span class="correct">✔ Говорение: ${total} из ${speakingPhrases.length} баллов</span>`;
+            window.scoreSpeaking = total;
+            return total;
+        }
+
+        // ========== ЗАДАНИЕ 4 ==========
+        const dragDropQuestions = [
+            { text: "У вас есть ______ шуба?", options: ["красивая", "красивый", "красивое", "красивые"], correct: "красивая" },
+            { text: "Я хочу купить ______ шубу.", options: ["новая", "новую", "новое", "новый"], correct: "новую" },
+            { text: "Хорошая шуба — и ______.", options: ["недорогой", "недорогая", "недорогое", "недорогие"], correct: "недорогая" },
+            { text: "Я ______ новую шубу.", options: ["отдыхаю", "хочу", "хотею", "ем"], correct: "хочу" },
+            { text: "В Европе не ______ натуральные шубы.", options: ["говорят", "работают", "лежат", "носят"], correct: "носят" },
+            { text: "У меня сорок шестой ______.", options: ["шкаф", "размер", "огурец", "шуба"], correct: "размер" },
+            { text: "Я покупаю ______ натуральное.", options: ["ничего", "сок", "всё", "вся"], correct: "всё" },
+            { text: "Вы ______ натуральную шубу?", options: ["ищете", "ищу", "ищем", "ищут"], correct: "ищете" },
+            { text: "Мы ______ природу.", options: ["любим", "любит", "любят", "люблю"], correct: "любим" }
+        ];
+        
+        function renderDragDrop() {
+            let html = '';
+            for (let i = 0; i < dragDropQuestions.length; i++) {
+                const q = dragDropQuestions[i];
+                html += `<div class="phrase-card" id="ddCard_${i}">
+                            <strong>${i+1}.</strong> 
+                            ${q.text.replace('______', `<span class="fill-blank" id="ddBlank_${i}">________</span>`)}
+                            <div class="options-group" id="ddOptions_${i}">
+                `;
+                for (let opt of q.options) {
+                    html += `<span class="option-word" data-question="${i}" data-word="${opt.replace(/'/g, "\\'")}">${opt}</span>`;
+                }
+                html += `</div><span id="ddResult_${i}" style="font-size:0.75rem;"></span></div>`;
+            }
+            document.getElementById('dragDropQuestions').innerHTML = html;
+            
+            document.querySelectorAll('.option-word').forEach(el => {
+                el.removeEventListener('click', dragDropHandler);
+                el.addEventListener('click', dragDropHandler);
+            });
+        }
+        
+        window.dragDropSelections = new Array(dragDropQuestions.length).fill(null);
+        
+        function dragDropHandler(e) {
+            const word = e.currentTarget.getAttribute('data-word');
+            const questionIdx = parseInt(e.currentTarget.getAttribute('data-question'));
+            window.dragDropSelections[questionIdx] = word;
+            const blankSpan = document.getElementById(`ddBlank_${questionIdx}`);
+            if (blankSpan) blankSpan.innerHTML = word;
+            
+            const card = document.getElementById(`ddCard_${questionIdx}`);
+            const oldSelected = card.querySelector('.selected-option');
+            if (oldSelected) oldSelected.classList.remove('selected-option');
+            e.currentTarget.classList.add('selected-option');
+            
+            const resultSpan = document.getElementById(`ddResult_${questionIdx}`);
+            if (resultSpan) resultSpan.innerHTML = "";
+        }
+        
+        function checkAllDragDrop() {
+            let score = 0;
+            for (let i = 0; i < dragDropQuestions.length; i++) {
+                const selected = window.dragDropSelections[i];
+                const correct = dragDropQuestions[i].correct;
+                const resultSpan = document.getElementById(`ddResult_${i}`);
+                const card = document.getElementById(`ddCard_${i}`);
+                const isCorrect = (selected === correct);
+                animateElement(card, isCorrect);
+                if (isCorrect && selected) {
+                    score++;
+                    resultSpan.innerHTML = "✅ Верно!";
+                    resultSpan.style.color = "#34c759";
+                } else if (!selected) {
+                    resultSpan.innerHTML = "⚠️ Выберите слово";
+                    resultSpan.style.color = "#ff9500";
+                } else {
+                    resultSpan.innerHTML = `❌ Неверно. Правильно: «${correct}»`;
+                    resultSpan.style.color = "#ff3b30";
+                }
+            }
+            document.getElementById('task4Result').innerHTML = `<span class="correct">✔ Задание 4: ${score} из ${dragDropQuestions.length} баллов</span>`;
+            window.scoreDragDrop = score;
+            return score;
+        }
+        
+        renderDragDrop();
+
+        // ========== ЗАДАНИЕ 5 ==========
+        function renderTopic() {
+            const options = [
+                { text: "о семье", value: "family" },
+                { text: "о шубах", value: "fur" },
+                { text: "о магазине", value: "shop" },
+                { text: "о природе", value: "nature" }
+            ];
+            let html = '';
+            options.forEach((opt, idx) => {
+                html += `<div class="answer-option" data-topic-value="${opt.value}" onclick="selectTopic('${opt.value}', this)">
+                            ${opt.text}
+                        </div>`;
+            });
+            document.getElementById('topicQuestion').innerHTML = html;
+        }
+        
+        let selectedTopicElement = null;
+        let selectedTopicValue = null;
+        
+        function selectTopic(value, element) {
+            if (selectedTopicElement) {
+                selectedTopicElement.style.background = "#f8f9fa";
+                selectedTopicElement.style.border = "none";
+            }
+            selectedTopicElement = element;
+            selectedTopicValue = value;
+            element.style.background = "#e3f2fd";
+            element.style.border = "1px solid #007aff";
+        }
+        
+        function checkTopic() {
+            const resultSpan = document.getElementById('topicResult');
+            if (!selectedTopicValue) {
+                resultSpan.innerHTML = "❌ Выберите ответ";
+                resultSpan.style.color = "#ff3b30";
+                window.scoreTopic = 0;
+                return 0;
+            }
+            
+            const isCorrect = (selectedTopicValue === "fur");
+            const allOptions = document.querySelectorAll('.answer-option');
+            allOptions.forEach(el => {
+                el.classList.remove('selected-correct', 'selected-wrong-only');
+                el.style.background = "#f8f9fa";
+                el.style.border = "none";
+            });
+            
+            if (isCorrect) {
+                if (selectedTopicElement) {
+                    selectedTopicElement.classList.add('selected-correct');
+                }
+                resultSpan.innerHTML = "✅ Правильно! Диалог о шубах";
+                resultSpan.style.color = "#34c759";
+                window.scoreTopic = 1;
+            } else {
+                if (selectedTopicElement) {
+                    selectedTopicElement.classList.add('selected-wrong-only');
+                }
+                resultSpan.innerHTML = "❌ Неправильно. Правильный ответ: о шубах";
+                resultSpan.style.color = "#ff3b30";
+                window.scoreTopic = 0;
+            }
+            return window.scoreTopic;
+        }
+        
+        renderTopic();
+
+        // ========== TELEGRAM ==========
+        async function sendToTelegram(studentName, totalScore, maxScore, details) {
+            if (!TELEGRAM_BOT_TOKEN || TELEGRAM_BOT_TOKEN === "1234567890:ABCdefGHIjklMNOpqrsTUVwxyz") {
+                return false;
+            }
+            const message = `📊 *НОВЫЙ РЕЗУЛЬТАТ ТЕСТА*\n\n👤 *Студент:* ${studentName}\n📝 *Балл:* ${totalScore} из ${maxScore}\n📋 *Детали:* ${details}\n🕐 *Время:* ${new Date().toLocaleString()}`;
+            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+            try {
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: "Markdown" })
+                });
+                const result = await response.json();
+                return result.ok;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        // ========== ИТОГ ==========
+        async function calculateTotalScore() {
+            const s1_1 = (window.score1_1 !== undefined) ? window.score1_1 : checkTask1_1();
+            const s1_2 = (window.score1_2 !== undefined) ? window.score1_2 : checkTask1_2();
+            const sAudio = (window.scoreAudio !== undefined) ? window.scoreAudio : checkAllAudio();
+            const sSpeaking = (window.scoreSpeaking !== undefined) ? window.scoreSpeaking : submitAllSpeaking();
+            const sDrag = (window.scoreDragDrop !== undefined) ? window.scoreDragDrop : checkAllDragDrop();
+            const sTopic = (window.scoreTopic !== undefined) ? window.scoreTopic : checkTopic();
+            
+            const total = s1_1 + s1_2 + sAudio + sSpeaking + sDrag + sTopic;
+            const max = 6 + 10 + 8 + 6 + 9 + 1;
+            const studentName = document.getElementById('studentName').value.trim() || "Студент";
+            
+            let grade = "";
+            if (total >= max * 0.85) grade = "Отлично (5)";
+            else if (total >= max * 0.7) grade = "Хорошо (4)";
+            else if (total >= max * 0.5) grade = "Удовлетворительно (3)";
+            else grade = "Попробуйте ещё раз";
+            
+            const details = `1.1:${s1_1}/6, 1.2:${s1_2}/10, 2:${sAudio}/8, 3:${sSpeaking}/6, 4:${sDrag}/9, 5:${sTopic}/1`;
+            
+            const sendStatusDiv = document.getElementById('sendStatus');
+            sendStatusDiv.innerHTML = "📤 Отправка результата в Telegram...";
+            sendStatusDiv.className = "send-status";
+            
+            const sent = await sendToTelegram(studentName, total, max, details);
+            
+            if (sent) {
+                sendStatusDiv.innerHTML = "✅ Результат отправлен учителю в Telegram!";
+                sendStatusDiv.className = "send-status send-success";
+            } else {
+                sendStatusDiv.innerHTML = "⚠️ Не удалось отправить результат. Проверьте токен и ID Telegram";
+                sendStatusDiv.className = "send-status send-error";
+            }
+            
+            document.getElementById('finalResult').innerHTML = `
+                🎓 ${studentName}, ваш результат: <strong>${total} из ${max} баллов</strong><br>
+                📊 Оценка: ${grade}<br>
+                <span style="font-size:0.8rem; color:#666;">${details}</span>
+            `;
+            return total;
+        }
+    </script>
+</body>
+</html>
